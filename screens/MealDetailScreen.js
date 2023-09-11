@@ -1,65 +1,63 @@
-import {
-  Button,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { MEALS } from "../data/dummy-data";
-import { useContext, useLayoutEffect } from "react";
-import MealDetails from "../components/MealDetails";
-import Subtitle from "../components/MealDetail/Subtitle";
-import List from "../components/MealDetail/List";
-import IconButton from "../components/IconButton";
-import FavoritesContext from "../store/context/favorites-context";
+import { useContext, useLayoutEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+
+import IconButton from '../components/IconButton';
+import List from '../components/MealDetail/List';
+import Subtitle from '../components/MealDetail/Subtitle';
+import MealDetails from '../components/MealDetails';
+import { MEALS } from '../data/dummy-data';
+import { FavoritesContext } from '../store/context/favorites-context';
 
 function MealDetailScreen({ route, navigation }) {
   const favoriteMealsCtx = useContext(FavoritesContext);
 
   const mealId = route.params.mealId;
-  const currentMeal = MEALS.find((meal) => meal.id === mealId);
-console.log(favoriteMealsCtx);
-const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+  const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  function headerButtonPressHandler() {
-    console.log("Header button pressed");
+  const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+
+  function changeFavoriteStatusHandler() {
+    if (mealIsFavorite) {
+      favoriteMealsCtx.removeFavorite(mealId);
+    } else {
+      favoriteMealsCtx.addFavorite(mealId);
+    }
   }
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
         return (
           <IconButton
-            icon={true ? "star" : "star-outline"}
+            icon={mealIsFavorite ? 'star' : 'star-outline'}
             color="white"
-            onPress={headerButtonPressHandler}
+            onPress={changeFavoriteStatusHandler}
           />
         );
       },
     });
-  }, [navigation, headerButtonPressHandler]);
+  }, [navigation, changeFavoriteStatusHandler]);
+
   return (
     <ScrollView style={styles.rootContainer}>
-      <Image style={styles.image} source={{ uri: currentMeal.imageUrl }} />
-      <Text style={styles.title}>{currentMeal.title}</Text>
+      <Image style={styles.image} source={{ uri: selectedMeal.imageUrl }} />
+      <Text style={styles.title}>{selectedMeal.title}</Text>
       <MealDetails
+        duration={selectedMeal.duration}
+        complexity={selectedMeal.complexity}
+        affordability={selectedMeal.affordability}
         textStyle={styles.detailText}
-        duration={currentMeal.duration}
-        affordability={currentMeal.affordability}
-        complexity={currentMeal.complexity}
       />
       <View style={styles.listOuterContainer}>
         <View style={styles.listContainer}>
           <Subtitle>Ingredients</Subtitle>
-          <List data={currentMeal.ingredients} />
+          <List data={selectedMeal.ingredients} />
           <Subtitle>Steps</Subtitle>
-          <List data={currentMeal.steps} />
+          <List data={selectedMeal.steps} />
         </View>
       </View>
     </ScrollView>
   );
-
-  <Text style={styles.title}>Meal Details - {mealId}</Text>;
 }
 
 export default MealDetailScreen;
@@ -69,23 +67,23 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: 350,
   },
   title: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 24,
     margin: 8,
-    textAlign: "center",
-    color: "white",
+    textAlign: 'center',
+    color: 'white',
   },
   detailText: {
-    color: "white",
+    color: 'white',
   },
   listOuterContainer: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   listContainer: {
-    width: "80%",
+    width: '80%',
   },
 });
