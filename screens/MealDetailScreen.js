@@ -1,14 +1,43 @@
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Button,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { MEALS } from "../data/dummy-data";
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import MealDetails from "../components/MealDetails";
 import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
+import IconButton from "../components/IconButton";
+import FavoritesContext from "../store/context/favorites-context";
 
 function MealDetailScreen({ route, navigation }) {
+  const favoriteMealsCtx = useContext(FavoritesContext);
+
   const mealId = route.params.mealId;
   const currentMeal = MEALS.find((meal) => meal.id === mealId);
-  console.log(currentMeal);
+console.log(favoriteMealsCtx);
+const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+
+  function headerButtonPressHandler() {
+    console.log("Header button pressed");
+  }
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => {
+        return (
+          <IconButton
+            icon={true ? "star" : "star-outline"}
+            color="white"
+            onPress={headerButtonPressHandler}
+          />
+        );
+      },
+    });
+  }, [navigation, headerButtonPressHandler]);
   return (
     <ScrollView style={styles.rootContainer}>
       <Image style={styles.image} source={{ uri: currentMeal.imageUrl }} />
@@ -36,9 +65,9 @@ function MealDetailScreen({ route, navigation }) {
 export default MealDetailScreen;
 
 const styles = StyleSheet.create({
-    rootContainer: {
-        marginBottom: 32
-    },
+  rootContainer: {
+    marginBottom: 32,
+  },
   image: {
     width: "100%",
     height: 350,
@@ -54,7 +83,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   listOuterContainer: {
-    alignItems: 'center'
+    alignItems: "center",
   },
   listContainer: {
     width: "80%",
